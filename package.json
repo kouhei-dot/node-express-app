@@ -1,0 +1,25 @@
+{
+  "name": "express-app",
+  "version": "1.0.0",
+  "description": "express sample app",
+  "main": "app.js",
+  "scripts": {
+    "dev": "node app.js"
+  },
+  "author": "k.ikeda",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.14.0"
+  },
+  "dependencies": {
+    "@garafu/mysql-fileloader": "^0.0.3",
+    "dotenv": "^16.0.1",
+    "ejs": "^3.1.7",
+    "express": "^4.18.1",
+    "log4js": "^6.4.6",
+    "moment": "^2.29.3",
+    "mysql": "^2.18.1",
+    "round-to": "^5.0.0",
+    "serve-favicon": "^2.5.0"
+  }
+}
