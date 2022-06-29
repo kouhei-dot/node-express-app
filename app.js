@@ -20,6 +20,7 @@ app.use(favicon(path.join(__dirname, '/public/favicon.ico')));
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
 app.use(accessLogger());
+app.use(express.urlencoded({ extended: true }));
 app.use('/', require('./routes/index'));
 app.use('/account', require('./routes/account'));
 app.use('/search', require('./routes/search'));
