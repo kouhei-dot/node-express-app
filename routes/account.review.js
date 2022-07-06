@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { mysqlClient, sql } = require('../lib/database/client');
 const moment = require('moment');
 const DATE_FORMAT = 'YYYY/MM/DD';
+const { validationResult, body } = require('express-validator');
 
 const createReviewData = (req) => {
   const body = req.body;
@@ -37,9 +38,15 @@ router.post('/regist/:shopId(\\d+)', async (req, res) => {
   res.render('./account/reviews/regist-form.ejs', { shopId, shopName, review });
 });
 
-router.post('/regist/confirm', async (req, res) => {
+router.post('/regist/confirm', [body('visit').isDate()], async (req, res) => {
   const review = createReviewData(req);
   const { shopId, shopName } = req.body;
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    const errors = error.array();
+    res.render('./account/reviews/regist-form.ejs', { errors, shopId, shopName, review });
+    return;
+  }
   res.render('./account/reviews/regist-confirm.ejs', { shopId, shopName, review });
 });
 
