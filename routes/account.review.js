@@ -50,4 +50,31 @@ router.post('/regist/confirm', [body('visit').isDate()], async (req, res) => {
   res.render('./account/reviews/regist-confirm.ejs', { shopId, shopName, review });
 });
 
+router.post('/regist/excute', async (req, res, next) => {
+  const review = createReviewData(req);
+  const { shopId, shopName } = req.body;
+  const error = validationResult(req);
+  if (!error.isEmpty()) {
+    const errors = error.array();
+    res.render('./account/reviews/regist-form.ejs', { errors, shopId, shopName, review });
+    return;
+  }
+  // TODO ログイン機能実装時に実装する
+  const userId = 1;
+  const tran =  await mysqlClient.beginTransaction();
+  try {
+    await tran.excuteQuery(await sql('SELECT_SHOP_BY_ID_FOR_UPDATE'), [shopId]);
+    await tran.excuteQuery(await sql('INSERT_SHOP_REVIEW'), [
+      shopId, userId, review.score, review.visit, review.description
+    ]);
+    await tran.excuteQuery(await sql('UPDATE_SHOP_SCORE_BY_ID'), [shopId, shopId]);
+    await tran.commit();
+  } catch(e) {
+    tran.rollback();
+    next(e);
+    return;
+  }
+  res.render('./account/reviews/regist-complete.ejs', { shopId });
+});
+
 module.exports = router;
