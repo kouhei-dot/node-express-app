@@ -76,7 +76,7 @@ router.post('/regist/excute', async (req, res, next) => {
   try {
     await tran.excuteQuery(await sql('SELECT_SHOP_BY_ID_FOR_UPDATE'), [shopId]);
     await tran.excuteQuery(await sql('INSERT_SHOP_REVIEW'), [
-      shopId, userId, review.score, review.visit, review.description
+      shopId, userId, review.score, review.visit, review.post, review.description
     ]);
     await tran.excuteQuery(await sql('UPDATE_SHOP_SCORE_BY_ID'), [shopId, shopId]);
     await tran.commit();
