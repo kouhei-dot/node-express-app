@@ -3,6 +3,7 @@ const { mysqlClient, sql } = require('../lib/database/client');
 const moment = require('moment');
 const DATE_FORMAT = 'YYYY/MM/DD';
 const { validationResult, body } = require('express-validator');
+const tokens = new (require('csrf'))();
 
 const createReviewData = (req) => {
   const body = req.body;
@@ -18,6 +19,11 @@ const createReviewData = (req) => {
 
 router.get('/regist/:shopId(\\d+)', async (req, res, next) => {
   const shopId = req.params.shopId;
+  const secret = await tokens.secret();
+  const token = tokens.create(secret);
+  req.session._csrf = secret;
+  res.cookie('_csrf', token);
+
   try {
     const result = await mysqlClient.excuteQuery(
       await sql('SELECT_SHOP_BASIC_BY_ID'),
@@ -51,6 +57,11 @@ router.post('/regist/confirm', [body('visit').isDate()], async (req, res) => {
 });
 
 router.post('/regist/excute', async (req, res, next) => {
+  if (!tokens.verify(req.session._csrf, req.cookies._csrf)) {
+    next(new Error('Invalid token.'));
+    return;
+  }
+
   const review = createReviewData(req);
   const { shopId, shopName } = req.body;
   const error = validationResult(req);
@@ -74,6 +85,10 @@ router.post('/regist/excute', async (req, res, next) => {
     next(e);
     return;
   }
+
+  delete req.session._csrf;
+  res.clearCookie('_csrf');
+
   res.render('./account/reviews/regist-complete.ejs', { shopId });
 });
 
