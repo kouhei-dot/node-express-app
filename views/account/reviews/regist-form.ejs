@@ -15,7 +15,7 @@
 
       <div>
         <form action="/account/reviews/regist/confirm" method="POST">
-          <input type="hidden" id="shopId" name="shopId" value="<%= shopId %> " />
+          <input type="hidden" id="shopId" name="shopId" value="<%= shopId %>" />
           <% if (locals.errors) { %>
             <div class="alert alert-danger">
               <% for ( error of errors) {%>
