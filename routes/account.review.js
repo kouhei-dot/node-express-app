@@ -70,8 +70,7 @@ router.post('/regist/excute', async (req, res, next) => {
     res.render('./account/reviews/regist-form.ejs', { errors, shopId, shopName, review });
     return;
   }
-  // TODO ログイン機能実装時に実装する
-  const userId = 1;
+  const userId = req.user.id;
   const tran =  await mysqlClient.beginTransaction();
   try {
     await tran.excuteQuery(await sql('SELECT_SHOP_BY_ID_FOR_UPDATE'), [shopId]);
