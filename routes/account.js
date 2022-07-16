@@ -11,5 +11,10 @@ router.get('/login', (req, res) => {
 
 router.post('/login', authenticate());
 
+router.post('/logout', (req, res) => {
+  req.logout(() => {});
+  res.redirect('/account/login');
+});
+
 router.use('/reviews', authrorize(PRIVILEGE.normal), require('./account.review'));
 module.exports = router;
