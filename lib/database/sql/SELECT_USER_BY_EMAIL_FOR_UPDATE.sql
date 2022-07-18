@@ -1,1 +1,1 @@
-SELECT * FROM t_user WHERE email = ?
+SELECT * FROM t_user WHERE email = ? FOR UPDATE
