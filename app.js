@@ -47,10 +47,18 @@ app.use(express.urlencoded({ extended: true }));
 app.use(flash());
 app.use(...accessControl.initialize());
 
-app.use('/', require('./routes/index'));
-app.use('/account', require('./routes/account'));
-app.use('/search', require('./routes/search'));
-app.use('/shops', require('./routes/shops'));
+app.use('/', (() => {
+  const router = express.Router();
+  router.use((_req, res, next) => {
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    next();
+  });
+  router.use('/account', require('./routes/account'));
+  router.use('/search', require('./routes/search'));
+  router.use('/shops', require('./routes/shops'));
+  router.use('/', require('./routes/index'));
+  return router;
+})());
 app.use(applicationLogger());
 app.listen(appConfig.PORT, () => logger.application.info('Express server started!'));
 // app.listen(3000, () => logger.application.info(chalk.green('Express server started!')));
