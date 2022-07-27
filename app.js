@@ -6,7 +6,6 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const favicon = require('serve-favicon');
-// const chalk = require('chalk');
 const logger = require('./lib/log/logger');
 const applicationLogger = require('./lib/log/applicationLogger');
 const accessLogger = require('./lib/log/accessLogger');
@@ -15,6 +14,7 @@ const cookie = require('cookie-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
 const MYSQLStore = require('express-mysql-session')(session);
+const gracefulShutdown = require('http-graceful-shutdown');
 
 app.disable('x-powered-by');
 
@@ -71,6 +71,22 @@ app.use((_err, _req, res, _next) => {
   res.status(500);
   res.render('./500.ejs');
 });
-app.listen(appConfig.PORT, () => logger.application.info('Express server started!'));
-// app.listen(3000, () => logger.application.info(chalk.green('Express server started!')));
-// app.listen(3000, () => logger.application.info(chalk.bgGreen('Express server started!')));
+const server = app.listen(appConfig.PORT, () => logger.application.info('Express server started!'));
+
+gracefulShutdown(server, {
+  signals: 'SIGINT SIGTERM',
+  timeout: 10000,
+  onShutdown: () => {
+    return new Promise((resolve, reject) => {
+      const { pool } = require('./lib/database/pool');
+      pool.end((err) => {
+        if (err) return reject(err);
+        resolve();
+      });
+    });
+  },
+  finally: () => {
+    const logger = require('./lib/log/logger').application;
+    logger.info('Application shutdown finished.');
+  },
+});
