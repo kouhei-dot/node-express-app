@@ -60,6 +60,17 @@ app.use('/', (() => {
   return router;
 })());
 app.use(applicationLogger());
+
+app.use((_req, res) => {
+  res.status(404);
+  res.render('./404.ejs');
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((_err, _req, res, _next) => {
+  res.status(500);
+  res.render('./500.ejs');
+});
 app.listen(appConfig.PORT, () => logger.application.info('Express server started!'));
 // app.listen(3000, () => logger.application.info(chalk.green('Express server started!')));
 // app.listen(3000, () => logger.application.info(chalk.bgGreen('Express server started!')));
